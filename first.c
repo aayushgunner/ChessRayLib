@@ -89,11 +89,10 @@ Texture2D * textureLoad(char *imagePaths[]) {
 
 }
 
-void renderBoard(Square board[8][8]) {
+void renderBoard(Square board[8][8], Vector2 ok) {
 
   for (int i=0;i<8;i++) {
     for (int j = 0; j<8;j++) {
-
       DrawRectangle(board[i][j].x, board[i][j].y,squaresize , squaresize, board[i][j].color);
     }
 
@@ -147,19 +146,33 @@ void renderPieces(Square board[8][8], Texture2D allTextures[]){
   }
 }
 
+void highlightPiece(Square board[8][8]) {
+  int x,y;
+  x = GetMouseX()/100;
+  y = GetMouseY()/100;
+   if (board[y][x].base!=EMPTY) 
+  DrawRectangle(board[y][x].x, board[y][x].y,squaresize , squaresize, BLUE);
+
+}
+
 int main(void)
 {   
+
   InitWindow(useWidht, useHeight, "Chess");
+
   Texture2D *allTextures= textureLoad(imagePaths);
   Square board[8][8];
   SetTargetFPS(60);
+  Vector2 ok;
   initializeBoard(board);
   initializePiece(board);
   while (!WindowShouldClose())    // Detect window close button or ESC key
   {
     BeginDrawing();
     ClearBackground(RAYWHITE);    // Clear the background with white Color
-    renderBoard(board);
+    renderBoard(board,ok);
+        highlightPiece(board);
+
     renderPieces(board,allTextures);
     EndDrawing();
   }
