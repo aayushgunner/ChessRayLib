@@ -117,7 +117,6 @@ void moveBot(Square board[8][8]) {
       bestMove=lyang[i];
     }
   }
-  printf("%d is best eval ", bestEval);
   free(lyang);
   performMove(board, bestMove.khaanePieceY, bestMove.khaanePieceX, bestMove.marekoX, bestMove.marekoY);
 }
@@ -165,7 +164,6 @@ int miniMaxbot(Square board[8][8], Move temp,int depth) {
   possibleMoves(board);
   Move *hang= getCopy();
   size_t hangsize=availableMoves.size;
-  printf("%d best eval", besteval);
   for (int i=0;i<hangsize;i++) {
     eval=miniMaxbot(board,hang[i],depth+1) ;
     if (someCheck==1 && eval>besteval) {
@@ -191,7 +189,6 @@ int evalFunc(Square board[8][8]) {
       }
     }
   }
-  printf("%d evaluation \n",eval);
   return eval;
 }
 //to check validity of postion of pieces in the board
@@ -309,7 +306,6 @@ GameState isgameFinished(Square board[8][8]) {                         //check i
   if (checkCondi(board)==whiteChecked) {
     possibleMoves(board);
     if (availableMoves.size==0) {
-      printf("black wins op \n");
       return blackWins;
     }
   }
@@ -592,6 +588,31 @@ bool kingMoves(Square board[8][8], int selectedX, int selectedY,int x, int y) {
   }
   return false;
 }
+
+void winnerLoad(Square board[8][8]) {
+  if (isgameFinished(board)==playOn) {
+
+    return;
+  }
+
+    DrawRectangle(250, 250, 400, 400, Fade(BLACK, 0.4f));
+  if (isgameFinished(board) ==whiteWins) {
+    DrawText("White wins", 300, 300, 60, BLACK);
+  }
+  else if (isgameFinished(board)==blackWins) {
+    DrawText("Black wins", 300, 300, 60, BLACK);
+  }
+  DrawText("Press Enter to start new game", 100,500,30,BLACK);
+    
+  if (IsKeyPressed(KEY_ENTER)) {
+        initializeBoard(board);
+        initializePiece(board);
+        initializeArray(availableMoves); 
+  }
+    
+
+}
+
 int main(void)
 {  
 
@@ -629,7 +650,7 @@ int main(void)
       highlightPiece(board);
       renderPieces(board,allTextures);
       promotionPiece(board);
-      isgameFinished(board);
+      winnerLoad(board);
 
     }
     // possibleMoves(board);
