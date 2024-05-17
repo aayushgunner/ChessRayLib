@@ -3,13 +3,13 @@
 #include<stdlib.h>
 #include <string.h>
 #include <stdio.h>
-const int useHeight = 800;
-const int useWidht = 800;
-const int squaresize = 100;
-bool isSelected = false;
-int pawnNum=1;
-int someCheck=0;
-Color haamro = GREEN;
+const int useHeight = 800; //Window dimension height.
+const int useWidht = 800;  //Window dimension width.
+const int squaresize = 100; //size of the square of the boared  
+bool isSelected = false;    //to check if the piece is selected or not  
+int pawnNum=1;      //check which pawn 
+int someCheck=0;     //to check which color piece
+Color haamro = GREEN;  
 
 
 typedef enum {
@@ -18,7 +18,7 @@ typedef enum {
   KNIGHTB,
   KNIGHTW,
   BISHOPB,
-  BISHOPW,
+  BISHOPW,                 //Pieces
   ROOKB,
   ROOKW,
   QUEENB,
@@ -27,24 +27,28 @@ typedef enum {
   KINGW,
   EMPTY
 } PieceType;
+
 typedef struct {
   int khaanePieceX;
   int khaanePieceY;
   int marekoX;
-  int marekoY;
+  int marekoY;                       //structure to save the positions of eating and eaten piece.
   PieceType marekoPiece;
   PieceType maarnePiece;
 } Move;
+
+
 typedef struct {
   Move *dynamicArra;
-  size_t size ;
+  size_t size ;                       //simple duplicatio of vector type but not exactly
 } Vector;
+
 Vector availableMoves;
 char *imagePaths[] = {
   "./images/PAWNB.png",
   "./images/PAWNW.png",
   "./images/KNIGHTB.png",
-  "./images/KNIGHTW.png",
+  "./images/KNIGHTW.png",             //array to store the image paths.
   "./images/BISHOPB.png",
   "./images/BISHOPW.png",
   "./images/ROOKB.png",
@@ -54,7 +58,7 @@ char *imagePaths[] = {
   "./images/KINGB.png",
   "./images/KINGW.png"
 }; 
-int pieceEval[12]= {-1,1,-3,3,-3,3,-5,5,-9,9,0,0};
+int pieceEval[12]= {-1,1,-3,3,-3,3,-5,5,-9,9,0,0};       //assigning a value to each type of piece.
 bool isWhite = true;
 typedef enum {
   blackChecked,
@@ -63,30 +67,21 @@ typedef enum {
   whiteWins,
   draw,
   playOn,
-  inValid
+  inValid                                                 // conditions for the game to either stop or keep running
 } GameState;
 typedef struct {
-  Texture2D texture;
+  Texture2D texture;                                    
 } Piece;
 typedef struct {
   int x ;
   int y;
   Color color;
-  PieceType base;
+  PieceType base;                                               //structure to give characteristics to each position in the board.
   bool isBlack;
   bool isMoved;
 } Square;
 
 
-typedef struct {
-
-  int suruPosX;
-  int suruPosY;
-  int suruPiece;
-  int jaanePieceX;
-  int jaanePieceY;
-  int jaanePiece;
-} Change;
 
 
 bool canMove(Square board[8][8],int selectedX,int selectedY, Color selectedColor , int x, int y);
@@ -97,9 +92,7 @@ bool knightMoves(Square board[8][8],int selectedX, int selectedY,int x, int y);
 bool bishopMoves(Square board[8][8],int selectedX, int selectedY,int x, int y  );
 bool queenMoves(Square board[8][8],int selectedX, int selectedY, int x, int y );
 bool kingMoves(Square board[8][8],int selectedX, int selectedY , int x, int y);
-void addMoves (Move characs);
-bool moveInList(Move characs);
-bool nextStepCheck(Square board[8][8],int selectedX, int selectedY,int x, int y);
+void addMoves (Move characs);                                                               //function declaration
 GameState isgameFinished(Square board[8][8]);
 GameState checkCondi (Square board[8][8]);
 void possibleMoves(Square board[8][8]);
@@ -108,15 +101,15 @@ void promotionPiece(Square board[8][8]);
 int evalFunc(Square board[8][8]); 
 int miniMaxbot(Square board[8][8], Move temp,int depth) ;
 void undoMove(Square board[8][8], Move backGo);
-void getCopy(Move  **copy) ;
+Move *getCopy() ;
+
+
 void moveBot(Square board[8][8]) {
-  printf("ok cha solti");
   possibleMoves(board);
-  Move *lyang;
-  getCopy(&lyang);
+  Move *lyang = getCopy();
   size_t lyangsize=availableMoves.size;
   int bestEval=-100;
-  Move bestMove=availableMoves.dynamicArra[0];
+  Move bestMove=availableMoves.dynamicArra[0];         //to initialize the bot 
   for (int i=0;i<lyangsize;i++) {
     int eval=miniMaxbot(board, lyang[i],1);
     if (eval>bestEval) {
@@ -131,9 +124,9 @@ void moveBot(Square board[8][8]) {
 
 void promotionPiece(Square board[8][8]) {
   for (int i=0;i<7;i++) {
-    if (board[0][i].base==PAWNW) {
-      board[0][i].base=QUEENW;
-    }
+    if (board[0][i].base==PAWNW) {                        
+      board[0][i].base=QUEENW;                  
+    }                                                       //promotes pawn to queen if it reaches its respective end of the board.
     
     if (board[7][i].base==PAWNB) {
       board[7][i].base=QUEENB;
@@ -143,9 +136,10 @@ void promotionPiece(Square board[8][8]) {
 
 } 
 
-void getCopy(Move  **copy) {
-  *copy = (Move *) malloc(availableMoves.size* sizeof(Move));
-  memcpy(*copy, availableMoves.dynamicArra, availableMoves.size * sizeof(Move));
+Move *getCopy() {
+  Move *copy = (Move *) malloc(availableMoves.size* sizeof(Move));
+  memcpy(copy, availableMoves.dynamicArra, availableMoves.size * sizeof(Move)); //for copying the availableMoves
+  return copy;
 }
 
 int miniMaxbot(Square board[8][8], Move temp,int depth) {
@@ -159,16 +153,17 @@ int miniMaxbot(Square board[8][8], Move temp,int depth) {
   else if (check==draw) {
     undoMove(board,temp);
     return 0;
-  }
-  if (depth>2) {
+  }    
+  //minimax algortithm   
+  //depth set here
+  if (depth>2) {                                                                   
     besteval=evalFunc(board);
     undoMove(board,temp);
     return besteval;
   }
   int eval;
   possibleMoves(board);
-  Move *hang;
-  getCopy(&hang);
+  Move *hang= getCopy();
   size_t hangsize=availableMoves.size;
   printf("%d best eval", besteval);
   for (int i=0;i<hangsize;i++) {
@@ -184,6 +179,8 @@ int miniMaxbot(Square board[8][8], Move temp,int depth) {
   undoMove(board,temp);
   return besteval;
 }
+
+//evaluation of the board accoring to pieces
 int evalFunc(Square board[8][8]) {
   int eval=0;
   for (int i=0;i<8;i++) {
@@ -197,14 +194,14 @@ int evalFunc(Square board[8][8]) {
   printf("%d evaluation \n",eval);
   return eval;
 }
-
+//to check validity of postion of pieces in the board
 bool isboardInvalid(Square board[8][8]) {
   return ((checkCondi(board)==blackChecked && someCheck==1)|| (checkCondi(board)==whiteChecked && someCheck==0)|| checkCondi(board)==inValid);
 }
 void undoMove (Square board[8][8], Move backGo) {
 
   board[backGo.khaanePieceY][backGo.khaanePieceX].base=backGo.maarnePiece;
-  board[backGo.marekoY][backGo.marekoX].base=backGo.marekoPiece;
+  board[backGo.marekoY][backGo.marekoX].base=backGo.marekoPiece;                   //undo the move
   someCheck= (someCheck==1)?0:1;
   // printf("%d \n", someCheck);
 }
@@ -222,8 +219,7 @@ void possibleMoves(Square board[8][8]) {
               temp.khaanePieceX=j;
               temp.khaanePieceY=i;
               temp.marekoPiece=board[a][b].base;
-              temp.maarnePiece=board[i][j].base;
-              // printf("PositionX %d PositionY %d Piece %d \n", a, b, board[i][j].base);
+              temp.maarnePiece=board[i][j].base;                                    //calcualte all the possible moves
               performMove(board, i, j, b, a);
               if (isboardInvalid(board)) {
                 undoMove(board, temp);
@@ -244,7 +240,7 @@ void possibleMoves(Square board[8][8]) {
 
 void renderStart() {
   DrawText("Lets start the Game", 300, 300, 20, BLACK);
-  DrawText("Press Enter to begin the game", 400,400,20,BLACK);
+  DrawText("Press Enter to begin the game", 400,400,20,BLACK);  //initial screen of the game
 }
 
 bool buttonSelect() {
@@ -256,7 +252,7 @@ bool buttonSelect() {
   return false;
 }
 
-GameState checkCondi(Square board[8][8]) {
+GameState checkCondi(Square board[8][8]) {                      //function to check whether a player is checked or not
   int blackKingX;
   int blackKingY;
   int whiteKingX;
@@ -264,7 +260,7 @@ GameState checkCondi(Square board[8][8]) {
   bool isBlack=false;
   bool isWhite=false;
   for (int i=0;i<8;i++) {
-    for (int j=0;j<8;j++) {
+    for (int j=0;j<8;j++) {                              
       if (board[i][j].base==KINGB) {
         blackKingX=j;
         blackKingY=i;
@@ -308,7 +304,8 @@ GameState checkCondi(Square board[8][8]) {
   }
   return playOn;
 }
-GameState isgameFinished(Square board[8][8]) {
+
+GameState isgameFinished(Square board[8][8]) {                         //check if the game is finished
   if (checkCondi(board)==whiteChecked) {
     possibleMoves(board);
     if (availableMoves.size==0) {
@@ -324,14 +321,15 @@ GameState isgameFinished(Square board[8][8]) {
   }
   return playOn;
 }
+
 void initializeArray (Vector availableMoves) {
-  availableMoves.dynamicArra=NULL;
+  availableMoves.dynamicArra=NULL;                        //initialiae the array of storing the availableMoves
   availableMoves.size=0;
 }
 
 void addMoves (Move characs ) {
   availableMoves.dynamicArra = (Move *) realloc(availableMoves.dynamicArra,(availableMoves.size+1) * sizeof(Move));
-  availableMoves.dynamicArra[availableMoves.size] = characs;
+  availableMoves.dynamicArra[availableMoves.size] = characs;   //too add possible moves
   availableMoves.size++;
 
 }
@@ -349,7 +347,7 @@ void initializeBoard(Square board[8][8]){
         }
         else {
           board[x][y].color = RAYWHITE;
-        }
+        }                                              //initialize board
       }
       else {
         if ((y%2)==1) {
@@ -364,16 +362,16 @@ void initializeBoard(Square board[8][8]){
   }
 }
 Texture2D * textureLoad(char *imagePaths[]) {
-  Texture2D *textures = malloc(12 * sizeof(Texture2D));
+  Texture2D *textures = malloc(12 * sizeof(Texture2D));                 //load textures of the pieces 
   for (int i=0;i<12;i++) {
     textures[i] = LoadTexture(imagePaths[i]);
   }
   return textures;
 }
 void renderBoard(Square board[8][8], Vector2 ok) {
-  for (int i=0;i<8;i++) {
+  for (int i=0;i<8;i++) {                                         
     for (int j = 0; j<8;j++) {
-      DrawRectangle(board[i][j].x, board[i][j].y,squaresize , squaresize, board[i][j].color);
+      DrawRectangle(board[i][j].x, board[i][j].y,squaresize , squaresize, board[i][j].color); //render the board
     }
   }
 }
@@ -395,7 +393,7 @@ void initializePiece(Square board[8][8]){
   board[0][6].base= KNIGHTB;
   board[7][1].base = KNIGHTW;
   board[7][6].base = KNIGHTW;
-  board[0][2].base = BISHOPB;
+  board[0][2].base = BISHOPB;                                      //initialize the pieces
   board[0][5].base= BISHOPB;
   board[7][2].base = BISHOPW;
   board[7][5].base = BISHOPW;
@@ -410,12 +408,12 @@ void renderPieces(Square board[8][8], Texture2D allTextures[]){
   for (int i=0;i<8;i++) {
     for (int j=0;j<8;j++) {
       if (board[i][j].base!=EMPTY) {
-        DrawTexture(allTextures[board[i][j].base], 10+j*100 ,  10+i*100, GRAY );
+        DrawTexture(allTextures[board[i][j].base], 10+j*100 ,  10+i*100, GRAY );//render the pieces in their resepective positions
       } 
     }
   }
 }
-
+//check if a move is valid or not
 bool canMove(Square board[8][8],int selectedX,int selectedY, Color selectedColor , int x, int y) {
   if (board[selectedY][selectedX].base==PAWNB || board[selectedY][selectedX].base==PAWNW) {
     return  pawnMoves(board,selectedX,selectedY, x, y);
@@ -423,7 +421,7 @@ bool canMove(Square board[8][8],int selectedX,int selectedY, Color selectedColor
   if (board[selectedY][selectedX].base==ROOKW || board[selectedY][selectedX].base==ROOKB) {
     return rookMoves(board,selectedX,selectedY, x, y);
   }
-
+                                                                                                    
   if (board[selectedY][selectedX].base==KNIGHTB || board[selectedY][selectedX].base==KNIGHTW) {
     return knightMoves(board,selectedX,selectedY, x, y);
   }
@@ -439,7 +437,7 @@ bool canMove(Square board[8][8],int selectedX,int selectedY, Color selectedColor
   return false;
 }
 
-
+//tp highlight the pieces
 void highlightPiece(Square board[8][8]) {
   static int selectedX = -1;
   static int selectedY = -1;
@@ -447,9 +445,8 @@ void highlightPiece(Square board[8][8]) {
   int x,y;
   x = GetMouseX()/100;
   y = GetMouseY()/100;
-  // printf("%d lets check \n", someCheck); 
   if (board[y][x].base!=EMPTY && board[y][x].base%2==someCheck) { 
-    DrawRectangle(board[y][x].x, board[y][x].y,squaresize , squaresize, BLUE);
+    DrawRectangle(board[y][x].x, board[y][x].y,squaresize , squaresize, BLUE);//highlights the piece when mouse is hovered
     if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
       if (!isSelected || (selectedX!=x || selectedY!=y) ) 
       {     
@@ -462,10 +459,8 @@ void highlightPiece(Square board[8][8]) {
       }
     }
   }
-  // printf("selectedX %d selectedY %d ", selectedX,selectedY);
-  // printf("Treu or false %d \n", isSelected);
   if (isSelected ) {
-    DrawRectangle(board[selectedY][selectedX].x, board[selectedY][selectedX].y, squaresize,squaresize, RED);
+    DrawRectangle(board[selectedY][selectedX].x, board[selectedY][selectedX].y, squaresize,squaresize, RED);//higlights the piece red when it is clicked
     for (int a=0;a<8;a++) {
       for (int b=0;b<8;b++) {
         if (canMove(board, selectedX, selectedY, WHITE, b, a) && (board[a][b].base==EMPTY || board[a][b].base%2!=someCheck)) {
@@ -478,7 +473,7 @@ void highlightPiece(Square board[8][8]) {
           temp.maarnePiece=board[selectedY][selectedX].base;
           performMove(board, selectedY, selectedX, b, a);
           if (!isboardInvalid(board)) {
-            DrawRectangle(board[a][b].x, board[a][b].y, squaresize,squaresize, haamro);
+            DrawRectangle(board[a][b].x, board[a][b].y, squaresize,squaresize, haamro); //the possible moves are highlighted
           }
           undoMove(board, temp);
         }}}
@@ -501,7 +496,7 @@ void highlightPiece(Square board[8][8]) {
 }
 void performMove(Square board[8][8],int selectedY,int selectedX,int x,int y) {
   board[y][x].base=board[selectedY][selectedX].base;
-  board[selectedY][selectedX].base=EMPTY;
+  board[selectedY][selectedX].base=EMPTY;                                       //peforms the respective move
   board[y][x].isMoved=true;
   if (someCheck==0) {
     someCheck=1;
@@ -510,6 +505,8 @@ void performMove(Square board[8][8],int selectedY,int selectedX,int x,int y) {
     someCheck=0;
   }  
 }
+
+//to check if the pawnMove about to be performed is valid
 bool pawnMoves(Square board[8][8],int selectedX, int selectedY, int x, int y  ) {
   if (board[selectedY][selectedX].base==PAWNB) {
     pawnNum=1;
@@ -517,9 +514,10 @@ bool pawnMoves(Square board[8][8],int selectedX, int selectedY, int x, int y  ) 
   else if (board[selectedY][selectedX].base==PAWNW) {
     pawnNum=-1;
   }
-  if ((selectedY==1 || selectedY==6) && y==selectedY+pawnNum*2 && x==selectedX && (board[y][x].base==EMPTY && board[y+pawnNum][x].base==EMPTY)  ) {
+  if ((selectedY==1 || selectedY==6) && y==selectedY+pawnNum*2 && x==selectedX && (board[selectedY+pawnNum][x].base==EMPTY && board[selectedY+pawnNum*2][x].base==EMPTY)  ) {
     return true;
   }
+
   if (y==selectedY+pawnNum && x==selectedX && (board[y][x].base==EMPTY) || 
     (y==selectedY+pawnNum && (x==selectedX+pawnNum || x==selectedX-pawnNum) && board[y][x].base%2!=someCheck && board[y][x].base!=EMPTY)||
     (y==selectedY+pawnNum && ((x==selectedX && board[y][x].base==EMPTY)|| ((x==selectedX+pawnNum || x==selectedX-pawnNum)&&board[y][x].base%2!=someCheck && board[y][x].base!=EMPTY)) )
@@ -528,7 +526,7 @@ bool pawnMoves(Square board[8][8],int selectedX, int selectedY, int x, int y  ) 
   }
   return false;
 }
-
+//to check if the rook move about to be performed is valid
 bool rookMoves(Square board[8][8], int selectedX, int selectedY, int x, int y ) {
   if (x==selectedX ^ y==selectedY) {
     int xGo = (x > selectedX) ? 1 : (x < selectedX) ? -1 : 0;
@@ -545,6 +543,7 @@ bool rookMoves(Square board[8][8], int selectedX, int selectedY, int x, int y ) 
   }
   return false;
 }
+//to check if the knight move about to be performed is valid
 bool knightMoves(Square board[8][8],int selectedX,int selectedY,int x, int y) {
   if (board[y][x].base==EMPTY || board[y][x].base%2!=someCheck) {
     if ((y==selectedY-2 || y==selectedY+2) && ((x==selectedX+1) || x==selectedX-1) ) {
@@ -556,7 +555,7 @@ bool knightMoves(Square board[8][8],int selectedX,int selectedY,int x, int y) {
   }
   return false;
 }
-
+//to check if the bishop move about to be performed is valid
 bool bishopMoves(Square board[8][8], int selectedX, int selectedY,int x, int y) {
 
   if (y!=selectedY && x!=selectedX) {
@@ -574,13 +573,13 @@ bool bishopMoves(Square board[8][8], int selectedX, int selectedY,int x, int y) 
   }
   return false;
 }
-
+//to check if the queen move about to be performed is valid
 bool queenMoves(Square board[8][8], int selectedX, int selectedY, int x,int y) {
 
   return (rookMoves(board, selectedX, selectedY,x,y) || bishopMoves(board, selectedX, selectedY,x,y)); 
 
 }
-
+//to check if the king move about to be performed is valid
 bool kingMoves(Square board[8][8], int selectedX, int selectedY,int x, int y) {
   if (!(x==selectedX && y==selectedY)) {
     int xGo = (x > selectedX) ? 1 : (x < selectedX) ? -1 : 0;
