@@ -1,11 +1,11 @@
-#include "raylib.h"
+
+#include <raylib.h>
 #include "actions.h"
 #include "globals.h"
 #include "render.h"
 #include "bot.h"
-int main(void)
-{  
-
+int main()
+{
   InitWindow(useWidht, useHeight, "Chess");
   Texture2D *allTextures= textureLoad(imagePaths);
   Square board[8][8];
@@ -35,8 +35,6 @@ int main(void)
         botPlay=buttonModeSelect();
       }
     else if (botPlay==2 || botPlay==1) {
-
-
       if (someCheck==1 && botPlay==2) {
         moveBot(board);
       }
@@ -45,10 +43,7 @@ int main(void)
         renderPieces(board,allTextures);
         promotionPiece(board);
         winnerLoad(board);
-
     }
-
-
     }
     // possibleMoves(board);
     EndDrawing();

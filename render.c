@@ -25,12 +25,7 @@ int buttonModeSelect() {
 return 0;
 }
  bool buttonSelect() {
-  if (IsKeyPressed(KEY_ENTER)) {
-
-    return true;
-
-  }
-  return false;
+  return IsKeyPressed(KEY_ENTER);
 }
 
 void renderBoard(Square board[8][8], Vector2 ok) {
@@ -102,7 +97,6 @@ void highlightPiece(Square board[8][8]) {
       if (isboardInvalid(board)) {
         undoMove(board, temp);
       } 
-
     }
   }
 }

@@ -8,6 +8,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netdb.h>
+#include "structEnum.h"
 
 void error (const char *msg) {
   perror(msg);
@@ -22,6 +23,7 @@ int main (int argc , char * argv[]) {
 
   char buffer[255];
   if (argc <3 ) {
+
     fprintf(stderr, "usage %s hostname port \n", argv[0]);
     exit(1);
 
@@ -46,47 +48,75 @@ int main (int argc , char * argv[]) {
   bcopy((char *) server->h_addr , (char *)&serv_addr.sin_addr.s_addr, server->h_length);
 
   serv_addr.sin_port = htons(portno);
-if (connect(sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0) {
+  if (connect(sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0) {
     error("connection failed");
   }
-
-  bzero(buffer, 255);
   while (1) {
-    fgets(buffer , 255 , stdin);
-    n=send(sockfd , buffer , strlen(buffer),0);
+  // Create a move (for testing, you can modify it to get actual moves)
+        int a[6];
+        printf("Enter your move (marekoX marekoY marekoPiece maarnePiece khaanePieceX khaanePieceY): ");
+        scanf("%d%d%d%d%d%d", &a[0], &a[1], &a[2], &a[3], &a[4], &a[5]);
+        Move moveToSend = {a[0], a[1], a[2], a[3], a[4], a[5]};
+        
+        // Send the move to the server
+        char buffer[sizeof(Move)];
+        memcpy(buffer, &moveToSend, sizeof(Move));
+        n = send(sockfd, buffer, sizeof(Move), 0);
+        if (n < 0) {
+            error("Error sending move");
+        }
 
-    if (n<0) {
-
-      error ("Error on writing");
+        // Clear the buffer and receive the move from the server
+        bzero(buffer, sizeof(Move));
+        Move receivedMove;
+        n = recv(sockfd, buffer, sizeof(Move), 0);
+        if (n < 0) {
+            error("Error receiving move");
+        }
+        memcpy(&receivedMove, buffer, sizeof(Move));
+        
+        // Print the received move
+        printf("Move received: %d %d %d %d %d %d\n", 
+               receivedMove.marekoX, 
+               receivedMove.marekoY, 
+               receivedMove.marekoPiece, 
+               receivedMove.maarnePiece, 
+               receivedMove.khaanePieceX, 
+               receivedMove.khaanePieceY);
     }
 
-
-    bzero(buffer , 255);
-    n=recv(sockfd, buffer, 255,0);
-    if (n<0) {
-      error("Error on reading");
-
-    }
-
-    printf("Server: %s", buffer);
-    int i= strncmp("Bye", buffer, 3);
-    if (i==0) {
-      break;
-    }
-
+    close(sockfd);
+    return 0;
+//     Move haha = {1,2,3,4,5,6};
+//     
+//    char buffer[sizeof(Move)];
+//    memcpy(buffer, &haha, sizeof(Move));
+//     int n = send(sockfd , buffer , sizeof(Move), 0);
+//
+//         if (n < 0) {
+//         error("Error sending move");
+//     }
+//     bzero(buffer, sizeof(Move));
+//     Move sad;
+//     n=recv(sockfd, buffer, sizeof(buffer), 0);
+//     if (n<0) {
+//       error("Error receiving moves");
+//     }
+//     memcpy(&sad, buffer, sizeof(Move));
+//     printf("%d\n%d\n%d\n%d\n%d\n%d\n",sad.marekoX,sad.marekoY,sad.marekoPiece,sad.maarnePiece,sad.khaanePieceX,sad.khaanePieceY); 
+// }
+//
+//
+//
+//
+// close(sockfd);
 
 
   }
 
-  close (sockfd);
-  return 0;
-
-  
 
 
 
 
 
-
-}
 

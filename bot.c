@@ -31,6 +31,7 @@ int miniMaxbot(Square board[8][8], Move temp,int depth) {
   if (depth>2) {                                                                   
     besteval=evalFunc(board);
     undoMove(board,temp);
+    
     return besteval;
   }
   int eval;
