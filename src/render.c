@@ -45,7 +45,7 @@ void renderPieces(Square board[8][8], Texture2D allTextures[]){
     }
   }
 }
-void highlightPiece(Square board[8][8]) {
+bool highlightPiece(Square board[8][8]) {
   static int selectedX = -1;
   static int selectedY = -1;
   static Color selectedColor = RED ;
@@ -96,9 +96,12 @@ void highlightPiece(Square board[8][8]) {
       performMove(board, selectedY, selectedX, x , y);
       if (isboardInvalid(board)) {
         undoMove(board, temp);
-      } 
+      }
+      Played_move = temp;
+      return true;
     }
   }
+  return false;
 }
 void winnerLoad(Square board[8][8]) {
   if (isgameFinished(board)==playOn) {

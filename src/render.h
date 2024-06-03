@@ -9,6 +9,6 @@ int buttonModeSelect();
 bool buttonSelect() ;
 void renderPieces(Square board[8][8], Texture2D allTextures[]);
 void renderBoard(Square board[8][8], Vector2 ok);
-void highlightPiece(Square board[8][8]);
+bool highlightPiece(Square board[8][8]);
 void winnerLoad(Square board[8][8]); 
 #endif // !RENDER_H
