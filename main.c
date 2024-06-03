@@ -1,9 +1,12 @@
-
 #include <raylib.h>
+#include "structEnum.h"
 #include "actions.h"
 #include "globals.h"
 #include "render.h"
 #include "bot.h"
+#include "server.h"
+#include "client.h"
+
 int main()
 {
   InitWindow(useWidht, useHeight, "Chess");
@@ -16,6 +19,9 @@ int main()
   initializePiece(board);
   initializeArray(availableMoves);
   bool interface=false;
+  bool is_server = false;
+  bool move_performed = false;
+  int sockfd = 0;
   int botPlay=0;
   while (!WindowShouldClose())    
   // Detect window close button or ESC key
@@ -29,21 +35,47 @@ int main()
     }
 
     else {
-
-    if (botPlay==0) {
+      if (botPlay==0) {
         selectMode();
         botPlay=buttonModeSelect();
+        if(botPlay ==1){
+          // set is_server;
+          if(is_server){
+            sockfd = initialize_server(8898);
+          }
+          else{
+            sockfd = initialize_client("127.0.0.1", 8898);
+          }
+        }
       }
-    else if (botPlay==2 || botPlay==1) {
-      if (someCheck==1 && botPlay==2) {
-        moveBot(board);
-      }
+
+      else if (botPlay==2 || botPlay==1) {
+        if (someCheck==1 && botPlay==2) {
+          moveBot(board);
+        }
+        else if(someCheck == 1 && !is_server){
+          Move opponent_move = receive_serverMove(sockfd);
+          performMove(board, opponent_move.khaanePieceY, opponent_move.khaanePieceX, opponent_move.marekoX, opponent_move.marekoY);
+        }
+        else if(someCheck == 0 && is_server){
+          Move opponent_move = receive_clientMove(sockfd);
+          performMove(board, opponent_move.khaanePieceY, opponent_move.khaanePieceX, opponent_move.marekoX, opponent_move.marekoY);
+        }
+
         renderBoard(board,ok);
-        highlightPiece(board);
+        move_performed = highlightPiece(board);
+
+        if(is_server && move_performed){
+          send_serverMove(sockfd, Played_move);
+        }
+        else if(!is_server && move_performed){
+          send_clientMove(sockfd, Played_move);
+        }
+
         renderPieces(board,allTextures);
         promotionPiece(board);
         winnerLoad(board);
-    }
+      }
     }
     // possibleMoves(board);
     EndDrawing();
