@@ -13,5 +13,6 @@ extern char* imagePaths[];
 extern const int useHeight ; //Window dimension height.
 extern const int useWidht;  //Window dimension width.
 extern const int squaresize; //size of the square of the boared  
+extern Move Played_move; //last played move by player
 
 #endif

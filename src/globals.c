@@ -1,4 +1,6 @@
 #include "globals.h"
+
+Move Played_move;
 bool isSelected = false;    //to check if the piece is selected or not  
 int pawnNum=1;      //check which pawn 
 int someCheck=0;     //to check which color piece
