@@ -7,6 +7,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netdb.h>
+#include<poll.h>
 #include "structEnum.h"
 
 static void error(const char *msg) {
@@ -66,7 +67,11 @@ void close_client(int sockfd){
 int main(int argc, char *argv[]) {
 
     int sockfd = initialize_client(argv[1], 8898);
-    while (1) {
+    
+    struct pollfd fds[1];
+    fds[0].fd = sockfd;
+    fds[0].events = POLLIN;
+     while (1) {
         int a[6];
         printf("Enter your move (marekoX marekoY marekoPiece maarnePiece khaanePieceX khaanePieceY): ");
         scanf("%d%d%d%d%d%d", &a[0], &a[1], &a[2], &a[3], &a[4], &a[5]);
@@ -74,14 +79,24 @@ int main(int argc, char *argv[]) {
         Move moveToSend = {a[0], a[1], a[2], a[3], a[4], a[5]};
         send_clientMove(sockfd, moveToSend);
 
-        Move receivedMove = receive_serverMove(sockfd);
-        printf("Move received: %d %d %d %d %d %d\n",
-               receivedMove.marekoX,
-               receivedMove.marekoY,
-               receivedMove.marekoPiece,
-               receivedMove.maarnePiece,
-               receivedMove.khaanePieceX,
-               receivedMove.khaanePieceY);
+        int ret = poll(fds, 1, -1); // Wait indefinitely for events
+        if (ret < 0) {
+            error("Poll failed");
+        } else if (ret == 0) {
+            // Timeout occurred (not applicable in this case)
+            continue;
+        }
+
+        if (fds[0].revents & POLLIN) {
+            Move receivedMove = receive_serverMove(sockfd);
+            printf("Move received: %d %d %d %d %d %d\n",
+                   receivedMove.marekoX,
+                   receivedMove.marekoY,
+                   receivedMove.marekoPiece,
+                   receivedMove.maarnePiece,
+                   receivedMove.khaanePieceX,
+                   receivedMove.khaanePieceY);
+        }
     }
     close_client(sockfd);
     return 0;

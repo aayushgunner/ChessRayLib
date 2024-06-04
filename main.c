@@ -1,4 +1,6 @@
 #include <raylib.h>
+#include<fcntl.h>
+#include <stdbool.h>
 #include "src/structEnum.h"
 #include "src/actions.h"
 #include "src/globals.h"
@@ -7,7 +9,7 @@
 #include "src/server.h"
 #include "src/client.h"
 
-int main()
+int main(int argc , char * argv[])
 {
   InitWindow(useWidht, useHeight, "Chess");
   Texture2D *allTextures= textureLoad(imagePaths);
@@ -19,7 +21,7 @@ int main()
   initializePiece(board);
   initializeArray(availableMoves);
   bool interface=false;
-  bool is_server = false;
+  bool is_server = argv[1];
   bool move_performed = false;
   int sockfd = 0;
   int botPlay=0;
@@ -47,6 +49,7 @@ int main()
             sockfd = initialize_client("127.0.0.1", 8898);
           }
         }
+
       }
 
       else if (botPlay==2 || botPlay==1) {

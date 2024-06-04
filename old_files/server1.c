@@ -1,11 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/poll.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include "structEnum.h"
+#include "poll.h"
 
 #define PORTNUM 8898
 
@@ -67,8 +69,20 @@ void close_server(int sockfd){
 int main() {
     int sockfd = initialize_server(PORTNUM);
     int a[6];
-    while (1) {
+    struct pollfd fds[1];
+    fds[0].fd = sockfd;
+    fds[0].events=POLLIN;
 
+    while (1) {
+       int ret = poll(fds, 1, -1); // Wait indefinitely for events
+        if (ret < 0) {
+            error("Poll failed");
+        } else if (ret == 0) {
+            // Timeout occurred (not applicable in this case)
+            continue;
+        }
+         
+        if (fds[0].revents & POLLIN) {
         Move move1 = receive_clientMove(sockfd);
         printf("Move received: %d %d %d %d %d %d\n",
                move1.marekoX,
@@ -83,7 +97,7 @@ int main() {
         Move moveToSend = {a[0], a[1], a[2], a[3], a[4], a[5]};
         send_serverMove(sockfd, moveToSend);
     }
-
+  }
     close_server(sockfd);
     return 0;
 }

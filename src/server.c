@@ -6,12 +6,11 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include "structEnum.h"
-
+#include <fcntl.h>
 static void error(const char *msg) {
     perror(msg);
     exit(1);
 }
-
 int initialize_server(int Port_address){
     int sockfd, newsockfd;
     struct sockaddr_in client_addr;
@@ -33,7 +32,6 @@ int initialize_server(int Port_address){
 
     listen(sockfd, 1); // Listen for up to 2 clients
     // Complete listening
-
     printf("Waiting for Client to connect...\n");
     newsockfd = accept(sockfd, (struct sockaddr *)&client_addr, &clilen);
     if (newsockfd < 0) error("Error on accept for player 1");
@@ -43,6 +41,8 @@ int initialize_server(int Port_address){
 }
 
 void send_serverMove(int sockfd, Move move) {
+    //  int flags = fcntl(sockfd, F_GETFL, 0);
+    // fcntl(sockfd, F_SETFL, flags | O_NONBLOCK);
     char buffer[sizeof(Move)];
     memcpy(buffer, &move, sizeof(Move));
     if(send(sockfd, buffer, sizeof(Move), 0) < 0) error("Error sending move");
@@ -50,6 +50,8 @@ void send_serverMove(int sockfd, Move move) {
 }
 
 Move receive_clientMove(int sockfd) {
+    //  int flags = fcntl(sockfd, F_GETFL, 0);
+    // fcntl(sockfd, F_SETFL, flags | O_NONBLOCK);
     char buffer[sizeof(Move)];
     if(recv(sockfd, buffer, sizeof(Move), 0) < 0) error("Error receiving move");
 

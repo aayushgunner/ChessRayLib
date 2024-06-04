@@ -8,7 +8,7 @@
 #include <netinet/in.h>
 #include <netdb.h>
 #include "structEnum.h"
-
+#include <fcntl.h>
 static void error(const char *msg) {
     perror(msg);
     exit(1);
@@ -43,6 +43,8 @@ int initialize_client(char *ip_address, int port_address){
 }
 
 void send_clientMove(int sockfd, Move moveToSend){
+   // int flags = fcntl(sockfd, F_GETFL, 0);
+   //  fcntl(sockfd, F_SETFL, flags | O_NONBLOCK);
     char buffer[sizeof(Move)];
     memcpy(buffer, &moveToSend, sizeof(Move));
     if(send(sockfd, buffer, sizeof(Move), 0) < 0) error("Error sending move");
@@ -51,6 +53,8 @@ void send_clientMove(int sockfd, Move moveToSend){
 }
 
 Move receive_serverMove(int sockfd){
+   // int flags = fcntl(sockfd, F_GETFL, 0);
+   //  fcntl(sockfd, F_SETFL, flags | O_NONBLOCK);
     char buffer[sizeof(Move)];
     bzero(buffer, sizeof(Move));
     Move receivedMove;
@@ -60,7 +64,6 @@ Move receive_serverMove(int sockfd){
     printf("Move was received by client\n");
     return receivedMove;
 }
-
 void close_client(int sockfd){
     close(sockfd);
 }
