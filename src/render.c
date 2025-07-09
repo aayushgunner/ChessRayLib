@@ -28,10 +28,12 @@ return 0;
   return IsKeyPressed(KEY_ENTER);
 }
 
-void renderBoard(Square board[8][8], Vector2 ok) {
+void renderBoard(Square board[8][8], Vector2 ok  ) {
   for (int i=0;i<8;i++) {                                         
     for (int j = 0; j<8;j++) {
+
       DrawRectangle(board[i][j].x, board[i][j].y,squaresize , squaresize, board[i][j].color); //render the board
+
     }
   }
 }

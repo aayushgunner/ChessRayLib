@@ -2,6 +2,7 @@
 #include "globals.h"
 #include "possible.h"
 #include "actions.h"
+#include <stdio.h>
 int evalFunc(Square board[8][8]) {
   int eval=0;
   for (int i=0;i<8;i++) {
@@ -16,7 +17,7 @@ int evalFunc(Square board[8][8]) {
 }
 int miniMaxbot(Square board[8][8], Move temp,int depth) {
   performMove(board, temp.khaanePieceY, temp.khaanePieceX, temp.marekoX, temp.marekoY);
-  int besteval= (someCheck==1)?-100:100; 
+  int besteval= (someCheck==1)?-100:100;
   GameState check=isgameFinished(board);
   if (check==whiteWins || check==blackWins) {
     undoMove(board, temp);
@@ -25,13 +26,13 @@ int miniMaxbot(Square board[8][8], Move temp,int depth) {
   else if (check==draw) {
     undoMove(board,temp);
     return 0;
-  }    
-  //minimax algortithm   
+  }
+  //minimax algortithm
   //depth set here
-  if (depth>2) {                                                                   
+  if (depth>2) {
     besteval=evalFunc(board);
     undoMove(board,temp);
-    
+
     return besteval;
   }
   int eval;
@@ -42,7 +43,7 @@ int miniMaxbot(Square board[8][8], Move temp,int depth) {
     eval=miniMaxbot(board,temp1[i],depth+1) ;
     if (someCheck==1 && eval>besteval) {
       besteval=eval;
-    } 
+    }
     else if (someCheck==0 && eval<besteval) {
       besteval=eval;
     }
@@ -51,13 +52,12 @@ int miniMaxbot(Square board[8][8], Move temp,int depth) {
   undoMove(board,temp);
   return besteval;
 }
-
 void moveBot(Square board[8][8]) {
   possibleMoves(board);
   Move *temp = getCopy();
   size_t tempSize=availableMoves.size;
   int bestEval=-100;
-  Move bestMove=availableMoves.dynamicArra[0];         //to initialize the bot 
+  Move bestMove=availableMoves.dynamicArra[0];         //to initialize the bot
   for (int i=0;i<tempSize;i++) {
     int eval=miniMaxbot(board, temp[i],1);
     if (eval>bestEval) {
@@ -68,4 +68,3 @@ void moveBot(Square board[8][8]) {
   free(temp);
   performMove(board, bestMove.khaanePieceY, bestMove.khaanePieceX, bestMove.marekoX, bestMove.marekoY);
 }
-

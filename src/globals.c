@@ -3,7 +3,7 @@
 Move Played_move;
 bool isSelected = false;    //to check if the piece is selected or not  
 int pawnNum=1;      //check which pawn 
-int someCheck=0;     //to check which color piece
+int someCheck=1;     //to check which color piece
 Color haamro = GREEN;  
 bool isWhite = true;
 int pieceEval[12]= {-1,1,-3,3,-3,3,-5,5,-9,9,0,0};   //assigning a value to each type of piece.

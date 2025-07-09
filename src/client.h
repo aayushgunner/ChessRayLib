@@ -5,7 +5,7 @@
 
 int initialize_client(char *ip_address, int port_address);
 void send_clientMove(int sockfd, Move moveToSend);
-Move receive_serverMove(int sockfd);
+bool receive_serverMove(int sockfd , Move * receviedMove);
 void close_client(int sockfd);
 
 #endif // !CLIENT_H

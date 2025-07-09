@@ -9,6 +9,7 @@
 #include <netdb.h>
 #include "structEnum.h"
 #include <fcntl.h>
+#include <errno.h>
 static void error(const char *msg) {
     perror(msg);
     exit(1);
@@ -52,17 +53,22 @@ void send_clientMove(int sockfd, Move moveToSend){
 
 }
 
-Move receive_serverMove(int sockfd){
+bool receive_serverMove(int sockfd , Move * receivedMove){
    // int flags = fcntl(sockfd, F_GETFL, 0);
    //  fcntl(sockfd, F_SETFL, flags | O_NONBLOCK);
     char buffer[sizeof(Move)];
     bzero(buffer, sizeof(Move));
-    Move receivedMove;
-    if(recv(sockfd, buffer, sizeof(Move), 0) < 0) error("Error receiving move");
-    memcpy(&receivedMove, buffer, sizeof(Move));
+   int check = recv(sockfd, buffer, sizeof(Move), MSG_DONTWAIT) ;
 
+  if (check==-1 && errno==EAGAIN) {
+
+    // sleep(1);
+    return false;
+
+  }
+    memcpy(receivedMove, buffer, sizeof(Move));
     printf("Move was received by client\n");
-    return receivedMove;
+    return true;
 }
 void close_client(int sockfd){
     close(sockfd);

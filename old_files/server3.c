@@ -45,9 +45,6 @@ int initialize_server(int port_address) {
 }
 void *receiveMessages(void *arg) {
     int sockfd = *(int *)arg;
-    int flags = fcntl(sockfd, F_GETFL, 0);
-    fcntl(sockfd, F_SETFL, flags | O_NONBLOCK);
-
     while (1) {
         Move move;
         int bytesRead = recv(sockfd, &move, sizeof(Move), 0);
@@ -63,9 +60,6 @@ void *receiveMessages(void *arg) {
 }
 void *sendMessages(void *arg) {
     int sockfd = *(int *)arg;
-    int flags = fcntl(sockfd, F_GETFL, 0);
-    fcntl(sockfd, F_SETFL, flags | O_NONBLOCK);
-
     while (1) {
         int a[6];
         printf("Enter your move (marekoX marekoY marekoPiece maarnePiece khaanePieceX khaanePieceY): ");

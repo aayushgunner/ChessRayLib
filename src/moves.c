@@ -1,6 +1,5 @@
 #include "moves.h"
 #include "globals.h"
-
 bool canMove(Square board[8][8],int selectedX,int selectedY, Color selectedColor , int x, int y) {
   if (board[selectedY][selectedX].base==PAWNB || board[selectedY][selectedX].base==PAWNW) {
     return  pawnMoves(board,selectedX,selectedY, x, y);
@@ -35,7 +34,7 @@ bool pawnMoves(Square board[8][8],int selectedX, int selectedY, int x, int y  ) 
     return true;
   }
 
-  if (y==selectedY+pawnNum && x==selectedX && (board[y][x].base==EMPTY) || 
+  if (y==selectedY+pawnNum && x==selectedX && (board[y][x].base==EMPTY) ||
     (y==selectedY+pawnNum && (x==selectedX+pawnNum || x==selectedX-pawnNum) && board[y][x].base%2!=someCheck && board[y][x].base!=EMPTY)||
     (y==selectedY+pawnNum && ((x==selectedX && board[y][x].base==EMPTY)|| ((x==selectedX+pawnNum || x==selectedX-pawnNum)&&board[y][x].base%2!=someCheck && board[y][x].base!=EMPTY)) )
   ) {
@@ -52,7 +51,7 @@ bool rookMoves(Square board[8][8], int selectedX, int selectedY, int x, int y ) 
     for (int i=1;i<8;i++) {
       if (x==selectedX + i*xGo && y==selectedY + i*yGo) {
         return true;
-      }  
+      }
       else if (board[selectedY+i*yGo][selectedX+i*xGo].base!=EMPTY) {
         break;
       }
@@ -85,7 +84,7 @@ bool bishopMoves(Square board[8][8], int selectedX, int selectedY,int x, int y) 
       else if (board[selectedY+i*yGo][selectedX+i*xGo].base!=EMPTY) {
         break;
       }
-    } 
+    }
 
   }
   return false;
@@ -93,7 +92,7 @@ bool bishopMoves(Square board[8][8], int selectedX, int selectedY,int x, int y) 
 //to check if the queen move about to be performed is valid
 bool queenMoves(Square board[8][8], int selectedX, int selectedY, int x,int y) {
 
-  return (rookMoves(board, selectedX, selectedY,x,y) || bishopMoves(board, selectedX, selectedY,x,y)); 
+  return (rookMoves(board, selectedX, selectedY,x,y) || bishopMoves(board, selectedX, selectedY,x,y));
 
 }
 //to check if the king move about to be performed is valid

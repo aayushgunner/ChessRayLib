@@ -1,3 +1,4 @@
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -49,16 +50,18 @@ void send_serverMove(int sockfd, Move move) {
     printf("Move was sent by server\n");
 }
 
-Move receive_clientMove(int sockfd) {
+bool receive_clientMove(int sockfd , Move * receivedMove) {
     //  int flags = fcntl(sockfd, F_GETFL, 0);
     // fcntl(sockfd, F_SETFL, flags | O_NONBLOCK);
     char buffer[sizeof(Move)];
-    if(recv(sockfd, buffer, sizeof(Move), 0) < 0) error("Error receiving move");
-
-    Move move;
-    memcpy(&move, buffer, sizeof(Move));
+    int check = recv(sockfd, buffer, sizeof(Move), MSG_DONTWAIT);
+    if (check==-1 && errno==EAGAIN) {
+    // sleep(1);
+    return false;
+  }
+    memcpy(receivedMove, buffer, sizeof(Move));
     printf("Move was received by server\n");
-    return move;
+    return true;
 }
 
 
